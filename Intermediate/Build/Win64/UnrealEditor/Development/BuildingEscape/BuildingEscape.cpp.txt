@@ -1,0 +1,2 @@
+C:\Users\fedus\Documents\Progetti\Unreal Projects\BuildingEscape\Intermediate\Build\Win64\UnrealEditor\Development\BuildingEscape\Definitions.BuildingEscape.h
+C:\Users\fedus\Documents\Progetti\Unreal Projects\BuildingEscape\Source\BuildingEscape\BuildingEscape.h
