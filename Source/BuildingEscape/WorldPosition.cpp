@@ -19,9 +19,10 @@ void UWorldPosition::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Display, TEXT("Hello, i'm a gray log!"));
-	UE_LOG(LogTemp, Warning, TEXT("Hello, i'm a yellow log!"));
-	UE_LOG(LogTemp, Error, TEXT("Hello, i'm a red log!"));
+	FString OwnerName = GetOwner()->GetName();
+	FVector ObjectLocation = GetOwner()->GetActorLocation();
+	UE_LOG(LogTemp, Warning, TEXT("This component is attached to %s and its coordinates are X:%f Y:%f Z:%f"), *OwnerName, 
+		ObjectLocation.X, ObjectLocation.Y, ObjectLocation.Z);
 	
 }
 
