@@ -33,27 +33,27 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 	//Apro la porta quando il player preme la pedana a pressione
 	if (ActorThatOpensTheDoor != nullptr && PressurePlate->IsOverlappingActor(ActorThatOpensTheDoor)) {
-		MoveDoor(DeltaTime, TargetActorRotatorOpen);
+		MoveDoor(DeltaTime, TargetActorRotatorOpen, DoorOpeningSpeed);
 		//Salvo l'ultima volta che ho premuto la pedana
 		DoorLastOpened = GetWorld()->GetTimeSeconds();
 	}
 	//Chiudo la porta quando il player non sta premendo la pedana a pressione
 	//Ma solo dopo due secondi dall'ultime pressione
 	else if(GetWorld()->GetTimeSeconds() - DoorLastOpened > DoorClosingDelay) {
-		MoveDoor(DeltaTime, TargetActorRotatorClose);
+		MoveDoor(DeltaTime, TargetActorRotatorClose, DoorClosingSpeed);
 	}
 
 	
 }
 
-void UOpenDoor::MoveDoor(float DeltaTime, FRotator TargetRotator) {
+void UOpenDoor::MoveDoor(float DeltaTime, FRotator TargetRotator, float Speed) {
 	FRotator CurrentActorRotator = GetOwner()->GetActorRotation();
 	//Lerp con Deltatime permette di interpolare in maniera indipendente dai frame
 	//FInterpConstantTo interpola con step costante (sempre gli stessi gradi al secondo)
 	//FInterpTo interpola come Lerp, ma sempre sfruttando il Deltatime
 	//Deltatime è il tempo che unreal ci mette a calcolare un frame
 	//L'ultimo parametro indica i gradi al secondo
-	CurrentActorRotator.Yaw = FMath::Lerp(CurrentActorRotator.Yaw, TargetRotator.Yaw, DeltaTime);
+	CurrentActorRotator.Yaw = FMath::Lerp(CurrentActorRotator.Yaw, TargetRotator.Yaw, DeltaTime * Speed);
 	//CurrentActorRotator.Yaw = FMath::FInterpConstantTo(CurrentActorRotator.Yaw, TargetActorRotator.Yaw, DeltaTime, 0.05f);
 	//CurrentActorRotator.Yaw = FMath::FInterpTo(CurrentActorRotator.Yaw, TargetActorRotator.Yaw, DeltaTime, 0.05f);
 	GetOwner()->SetActorRotation(CurrentActorRotator);

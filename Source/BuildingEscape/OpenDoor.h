@@ -26,10 +26,16 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 private:
 
-	void MoveDoor(float DeltaTime, FRotator TargetRotator);
+	void MoveDoor(float DeltaTime, FRotator TargetRotator, float Speed);
 
 	FRotator TargetActorRotatorOpen;
 	FRotator TargetActorRotatorClose;
+
+	UPROPERTY(EditAnywhere)
+	float DoorOpeningSpeed = 1.f;
+
+	UPROPERTY(EditAnywhere)
+	float DoorClosingSpeed = 1.f;
 
 	UPROPERTY(EditAnywhere)
 	float OpenAngle = -90.0f;
