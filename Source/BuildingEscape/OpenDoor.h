@@ -48,8 +48,14 @@ private:
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume* PressurePlate;
 
+	//Rimpiazzato da TotalMassOfActors()
+	//UPROPERTY(EditAnywhere)
+	//AActor* ActorThatOpensTheDoor;
+
 	UPROPERTY(EditAnywhere)
-	AActor* ActorThatOpensTheDoor;
+	float MassToPress = 50.f;
+
+	float TotalMassOfActors();
 	
 		
 };

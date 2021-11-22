@@ -4,6 +4,8 @@
 #include "OpenDoor.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
+#include "Components/PrimitiveComponent.h"
+#define OUT
 
 // Sets default values for this component's properties
 UOpenDoor::UOpenDoor()
@@ -22,7 +24,7 @@ void UOpenDoor::BeginPlay()
 	Super::BeginPlay();
 	TargetActorRotatorClose = GetOwner()->GetActorRotation();
 	TargetActorRotatorOpen = FRotator(TargetActorRotatorClose.Pitch, TargetActorRotatorClose.Yaw + OpenAngle, TargetActorRotatorClose.Roll); //Y, Z, X
-	ActorThatOpensTheDoor = GetWorld()->GetFirstPlayerController()->GetPawn();
+	//ActorThatOpensTheDoor = GetWorld()->GetFirstPlayerController()->GetPawn();
 }
 
 
@@ -31,8 +33,10 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//Apro la porta quando il player preme la pedana a pressione
-	if (ActorThatOpensTheDoor != nullptr && PressurePlate->IsOverlappingActor(ActorThatOpensTheDoor)) {
+	//Apro la porta quando il player preme la pedana a pressione (UPDATE: rimpiazzato da TotalMassOfActors)
+	//if (ActorThatOpensTheDoor != nullptr && PressurePlate->IsOverlappingActor(ActorThatOpensTheDoor)) {
+	if(TotalMassOfActors() > MassToPress){
+		//UE_LOG(LogTemp, Warning, TEXT("%s is pressing the pressure plate!"), *ActorThatOpensTheDoor->GetActorLabel());
 		MoveDoor(DeltaTime, TargetActorRotatorOpen, DoorOpeningSpeed);
 		//Salvo l'ultima volta che ho premuto la pedana
 		DoorLastOpened = GetWorld()->GetTimeSeconds();
@@ -41,9 +45,7 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	//Ma solo dopo due secondi dall'ultime pressione
 	else if(GetWorld()->GetTimeSeconds() - DoorLastOpened > DoorClosingDelay) {
 		MoveDoor(DeltaTime, TargetActorRotatorClose, DoorClosingSpeed);
-	}
-
-	
+	}	
 }
 
 void UOpenDoor::MoveDoor(float DeltaTime, FRotator TargetRotator, float Speed) {
@@ -57,5 +59,25 @@ void UOpenDoor::MoveDoor(float DeltaTime, FRotator TargetRotator, float Speed) {
 	//CurrentActorRotator.Yaw = FMath::FInterpConstantTo(CurrentActorRotator.Yaw, TargetActorRotator.Yaw, DeltaTime, 0.05f);
 	//CurrentActorRotator.Yaw = FMath::FInterpTo(CurrentActorRotator.Yaw, TargetActorRotator.Yaw, DeltaTime, 0.05f);
 	GetOwner()->SetActorRotation(CurrentActorRotator);
+}
+
+float UOpenDoor::TotalMassOfActors() {
+	float TotalMass = 0.f;
+
+	TArray<AActor*> OverlappingActors;
+
+	PressurePlate->GetOverlappingActors(OUT OverlappingActors, nullptr);
+
+	for (AActor* OverlappingActor : OverlappingActors) {
+		
+		UPrimitiveComponent* PrimitiveComponent = OverlappingActor->FindComponentByClass<UPrimitiveComponent>();
+		if (PrimitiveComponent != nullptr) {
+			TotalMass += PrimitiveComponent->GetMass();
+		}
+	}
+
+
+
+	return TotalMass;
 }
 
