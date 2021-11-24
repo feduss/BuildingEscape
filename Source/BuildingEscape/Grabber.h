@@ -32,7 +32,9 @@ public:
 private:
 	UPROPERTY(EditAnywhere)
 	float Distance = 100.f;
+	UPROPERTY()
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
+	UPROPERTY()
 	UInputComponent* InputComponent = nullptr;
 	FHitResult LastObjectTaken;
 

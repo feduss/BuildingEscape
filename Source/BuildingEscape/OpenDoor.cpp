@@ -5,6 +5,7 @@
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "Components/PrimitiveComponent.h"
+#include "Components/AudioComponent.h"
 #define OUT
 
 // Sets default values for this component's properties
@@ -25,6 +26,7 @@ void UOpenDoor::BeginPlay()
 	TargetActorRotatorClose = GetOwner()->GetActorRotation();
 	TargetActorRotatorOpen = FRotator(TargetActorRotatorClose.Pitch, TargetActorRotatorClose.Yaw + OpenAngle, TargetActorRotatorClose.Roll); //Y, Z, X
 	//ActorThatOpensTheDoor = GetWorld()->GetFirstPlayerController()->GetPawn();
+	FindAudioComponent();
 }
 
 
@@ -35,16 +37,34 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 	//Apro la porta quando il player preme la pedana a pressione (UPDATE: rimpiazzato da TotalMassOfActors)
 	//if (ActorThatOpensTheDoor != nullptr && PressurePlate->IsOverlappingActor(ActorThatOpensTheDoor)) {
-	if(TotalMassOfActors() > MassToPress){
+	if(TotalMassOfActors() > MassToPress && GetOwner()->GetActorRotation().Yaw != TargetActorRotatorOpen.Yaw){
 		//UE_LOG(LogTemp, Warning, TEXT("%s is pressing the pressure plate!"), *ActorThatOpensTheDoor->GetActorLabel());
 		MoveDoor(DeltaTime, TargetActorRotatorOpen, DoorOpeningSpeed);
 		//Salvo l'ultima volta che ho premuto la pedana
 		DoorLastOpened = GetWorld()->GetTimeSeconds();
+		//UE_LOG(LogTemp, Error, TEXT("%s has been opened"), *GetOwner()->GetName());
+		if (!IsDoorOpen) {
+			if (AudioComponent != nullptr) {
+				AudioComponent->Play();
+				IsDoorOpen = true;
+				UE_LOG(LogTemp, Warning, TEXT("Suono riprodotto"));
+			}
+		}
+
 	}
 	//Chiudo la porta quando il player non sta premendo la pedana a pressione
 	//Ma solo dopo due secondi dall'ultime pressione
-	else if(GetWorld()->GetTimeSeconds() - DoorLastOpened > DoorClosingDelay) {
+	else if(GetWorld()->GetTimeSeconds() - DoorLastOpened > DoorClosingDelay &&
+		GetOwner()->GetActorRotation().Yaw != TargetActorRotatorClose.Yaw) {
 		MoveDoor(DeltaTime, TargetActorRotatorClose, DoorClosingSpeed);
+		//UE_LOG(LogTemp, Warning, TEXT("%s has been closed"), *GetOwner()->GetName());
+		if (IsDoorOpen) {
+			if (AudioComponent != nullptr) {
+				AudioComponent->Play();
+				IsDoorOpen = false;
+				UE_LOG(LogTemp, Warning, TEXT("Suono riprodotto"));
+			}
+		}
 	}	
 }
 
@@ -61,6 +81,14 @@ void UOpenDoor::MoveDoor(float DeltaTime, FRotator TargetRotator, float Speed) {
 	GetOwner()->SetActorRotation(CurrentActorRotator);
 }
 
+void UOpenDoor::FindAudioComponent() {
+	AudioComponent = GetOwner()->FindComponentByClass<UAudioComponent>();
+
+	if (AudioComponent == nullptr) {
+		UE_LOG(LogTemp, Error, TEXT("%s has null AudioComponent"), *GetOwner()->GetName())
+	}
+}
+
 float UOpenDoor::TotalMassOfActors() {
 	float TotalMass = 0.f;
 
@@ -75,9 +103,6 @@ float UOpenDoor::TotalMassOfActors() {
 			TotalMass += PrimitiveComponent->GetMass();
 		}
 	}
-
-
-
 	return TotalMass;
 }
 

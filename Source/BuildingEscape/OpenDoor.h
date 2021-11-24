@@ -17,6 +17,8 @@ public:
 	// Sets default values for this component's properties
 	UOpenDoor();
 
+	void FindAudioComponent();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -46,7 +48,10 @@ private:
 	float DoorClosingDelay = 2.f;
 
 	UPROPERTY(EditAnywhere)
-	ATriggerVolume* PressurePlate;
+	ATriggerVolume* PressurePlate = nullptr;
+
+	UPROPERTY()
+	UAudioComponent* AudioComponent = nullptr;
 
 	//Rimpiazzato da TotalMassOfActors()
 	//UPROPERTY(EditAnywhere)
@@ -56,6 +61,8 @@ private:
 	float MassToPress = 50.f;
 
 	float TotalMassOfActors();
+
+	bool IsDoorOpen = false;
 	
 		
 };
